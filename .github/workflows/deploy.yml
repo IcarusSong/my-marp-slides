@@ -12,24 +12,9 @@ jobs:
       - name: Install Marp CLI
         run: npm install -g @marp-team/marp-cli
 
-      - name: Create output directories
-        run: |
-          mkdir -p web/slides
-          mkdir -p web/pdf
-
       # 5. 生成 PDF 幻灯片
       - name: Build PDF slides
-        run: |
-          marp --pdf --allow-local-files --input-dir slides --output web/pdf \
-            --config .vscode/settings.json
-
-      # 6. 复制静态资源（图片、CSS 等）
-      - name: Copy static files
-        run: |
-          find slides \( -name "*.png" -o -name "*.svg" -o -name "*.css" -o -name "*.jpg" \) \
-            -exec sh -c 'mkdir -p web/"$(dirname "{}")" && cp "{}" web/"{}"' \;      - name: Build HTML slides
-        run: |
-          marp --html 
+        run: marp --html *.md
           
       # 8. 部署到 GitHub Pages
       - name: Deploy to GitHub Pages
