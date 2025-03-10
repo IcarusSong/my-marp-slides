@@ -11,14 +11,14 @@ jobs:
 
       - name: Create output directories
         run: |
-        mkdir -p web/slides
-        mkdir -p web/pdf
+          mkdir -p web/slides
+          mkdir -p web/pdf
       - name: Verify directories
         run: |
           ls -l web
           ls -l web/slides
           ls -l web/pdf
-          
+
       - name: Install Marp CLI
         run: npm install -g @marp-team/marp-cli
 
