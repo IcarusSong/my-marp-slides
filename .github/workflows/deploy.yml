@@ -6,29 +6,53 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
+      # 1. 检出代码
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2. 创建输出目录
       - name: Create output directories
         run: |
-          mkdir -p web/slides
-          mkdir -p web/pdf
-      - name: Verify directories
-        run: |
-          ls -l web
-          ls -l web/slides
-          ls -l web/pdf
+          mkdir -p web/slides  # HTML 和静态资源目录
+          mkdir -p web/pdf     # PDF 输出目录
 
+      # 3. 安装 Marp CLI
       - name: Install Marp CLI
         run: npm install -g @marp-team/marp-cli
 
-      # 5. 生成 PDF 幻灯片
+      # 4. 生成 HTML 幻灯片（输出到 web/slides）
+      - name: Build HTML slides
+        run: |
+          marp --html --input-dir slides --output web/slides
+
+      # 5. 生成 PDF 幻灯片（输出到 web/pdf）
       - name: Build PDF slides
-        run: marp --html ./slides/*.md
-          
+        run: |
+          marp --pdf --allow-local-files --input-dir slides --output web/pdf
+
+      # 6. 复制静态资源（图片、CSS 等）到 web/slides
+      - name: Copy static files
+        run: |
+          rsync -av --include='*/' \
+            --include='*.png' --include='*.svg' --include='*.css' --include='*.jpg' \
+            --exclude='*' \
+            slides/ web/slides/
+
+      # 7. 验证生成的文件
+      - name: Verify files
+        run: |
+          echo "HTML files:"
+          ls -l web/slides/*.html
+          echo "PDF files:"
+          ls -l web/pdf/*.pdf
+          echo "Static files:"
+          ls -l web/slides/**/*.png
+
       # 8. 部署到 GitHub Pages
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: gh-pages
-          folder: web
+          branch: gh-pages         # 部署到 gh-pages 分支
+          folder: web             # 部署 web 目录下的所有内容
+          clean: true             # 清除旧文件，避免残留
+          token: ${{ secrets.GITHUB_TOKEN }}  # 确保权限
