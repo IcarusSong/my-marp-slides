@@ -6,21 +6,34 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install Marp CLI
+        run: npm install -g @marp-team/marp-cli
 
-      # 安装Marp CLI
-      - run: npm install -g @marp-team/marp-cli
+      - name: Create output directories
+        run: |
+          mkdir -p web/slides
+          mkdir -p web/pdf
 
-      # 转换Markdown为HTML
-      - run: marp --html *.md
+      # 5. 生成 PDF 幻灯片
+      - name: Build PDF slides
+        run: |
+          marp --pdf --allow-local-files --input-dir slides --output web/pdf \
+            --config .vscode/settings.json
 
-      # 部署到GitHub Pages（使用SSH方式）
-      - name: Deploy to Pages
-        uses: peaceiris/actions-gh-pages@v3
+      # 6. 复制静态资源（图片、CSS 等）
+      - name: Copy static files
+        run: |
+          find slides \( -name "*.png" -o -name "*.svg" -o -name "*.css" -o -name "*.jpg" \) \
+            -exec sh -c 'mkdir -p web/"$(dirname "{}")" && cp "{}" web/"{}"' \;      - name: Build HTML slides
+        run: |
+          marp --html 
+          
+      # 8. 部署到 GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          # 替换为SSH密钥（需提前生成并配置到GitHub Secrets）
-          ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}  # <button class="citation-flag" data-index="1"><button class="citation-flag" data-index="4"><button class="citation-flag" data-index="7">
-          # 指定仓库的SSH地址（格式：git@github.com:<用户名>/<仓库名>.git）
-          repository: git@github.com:IcarusSong/my-marp-slides.git  # <button class="citation-flag" data-index="4"><button class="citation-flag" data-index="9">
-          # 发布目录（保持与原配置一致）
-          publish_dir: ./
+          branch: gh-pages
+          folder: web
