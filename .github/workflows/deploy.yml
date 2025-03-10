@@ -5,6 +5,8 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 允许写入仓库内容（包括分支）
     steps:
       # 1. 检出代码
       - name: Checkout code
