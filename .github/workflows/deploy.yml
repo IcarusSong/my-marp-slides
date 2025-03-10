@@ -24,7 +24,7 @@ jobs:
 
       # 5. 生成 PDF 幻灯片
       - name: Build PDF slides
-        run: marp --html *.md
+        run: marp --html ./slides/*.md
           
       # 8. 部署到 GitHub Pages
       - name: Deploy to GitHub Pages
