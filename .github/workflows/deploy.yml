@@ -1,0 +1,25 @@
+name: Deploy Marp Slides
+
+on:
+  push:
+    branches:
+      - main  # 触发条件：推送到 main 分支时执行
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 安装 Marp CLI
+        run: npm install -g @marp-team/marp-cli
+
+      - name: 生成 HTML 幻灯片
+        run: marp slide.md --html -o index.html
+
+      - name: 部署到 GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: .  # 部署整个仓库目录
